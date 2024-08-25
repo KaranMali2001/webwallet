@@ -13,8 +13,9 @@ export default function SecretPhrase() {
     const Fetchdata = async () => {
       try {
         const res = await axios.post("/api/mnemonic");
+console.log("phasrse",res.data.mnemonic)
         if (res.status == 200) {
-          const array: string[] = res.data.split(" ");
+          const array: string[] = res.data.mnemonic.split(" ");
           setPhrases(array);
           setData(res.data);
         }

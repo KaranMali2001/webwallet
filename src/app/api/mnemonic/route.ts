@@ -17,10 +17,10 @@ export async function POST() {
     });
 
     console.log("res that saved inside",res)  
-} catch (error: any) {
-    return {
-      error: error,
-    };
+    return NextResponse.json({ mnemonic })
+  } catch (error: any) {
+    
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json(mnemonic);
+ 
 }

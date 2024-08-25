@@ -1,12 +1,12 @@
 "use client";
-import GetWalletBalence, { AirDrop } from "@/actions/GetWalletBalence";
+import GetWalletBalence from "@/actions/GetWalletBalence";
 import { New_wallet } from "@/actions/NewWallet";
-import { Keypair } from "@solana/web3.js";
 
 import { useEffect, useState } from "react";
 
 import { GetUserWallets } from "@/actions/GetWallets";
 import { Wallet } from "@prisma/client";
+import { Button } from "@/components/ui/button";
 
 interface WalletKeys {
   publicKey: string;
@@ -16,17 +16,30 @@ export default function DashboardComponent({ pharses }: { pharses: string }) {
   const [newKeyPair, setNewKeyPair] = useState<WalletKeys | null>(null);
   const [Wallets, setWallets] = useState<Wallet[] | null>(null);
   const [mnemonics, setMnemoics] = useState("");
-
+  const [netWork, setNetWork] = useState<string>('devnet');
+  const [walletBalence, setWalletBalence] = useState<{
+    [key: string]: string | number;
+  }>({});
   useEffect(() => {
     if (pharses) {
       setMnemoics(pharses);
     }
   }, [pharses]);
+  const handleWalletBalence = async (wallet_address: string) => {
+    try {
+      const res = await GetWalletBalence(wallet_address,netWork);
+      setWalletBalence((prevBalence) => ({
+        ...prevBalence,
+        [wallet_address]: res,
+      }));
+    } catch (error: any) {
+      console.log("error while fetching balence");
+    }
+  };
   const ButtonForWallets = async () => {
     if (mnemonics) {
-      console.log("pharses", mnemonics);
       const data = await GetUserWallets(mnemonics);
-      console.log("the data inside Button for wallets", data);
+
       setWallets(data);
     } else {
       console.log("No mnemonics to fetch wallets");
@@ -37,18 +50,59 @@ export default function DashboardComponent({ pharses }: { pharses: string }) {
     setNewKeyPair(res);
     console.log(res);
   };
+  const handleNetworkChange=(netWork:string)=>{
+setNetWork(netWork)
+  }
   return (
     <div className="text-white">
+      <div className="network-selection">
+        <label>
+          <input
+            type="radio"
+            name="network"
+            value="mainnet"
+            checked={netWork === 'mainnet'}
+            onChange={() => handleNetworkChange('mainnet')}
+          />
+          Mainnet
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="network"
+            value="devnet "
+            checked={netWork === 'devnet'}
+            onChange={() => handleNetworkChange('devnet')}
+          />
+          Testnet
+        </label>
+      </div>
       <button onClick={ButtonForWallets}>Click here to get wallet</button>
-      <ul className="bg-orange-700">
-        {Wallets && Wallets.length > 0 ? (
-          Wallets.map((wallet, index) => (
-            <li key={index}>{wallet.wallet_address}</li>
-          ))
-        ) : (
-          <li>No wallet addresses found.</li>
-        )}
-      </ul>
+      <div className="grid grid-cols-2 gap-4">
+        <ul className=" col-span-1">
+          {Wallets && Wallets.length > 0 ? (
+            Wallets.map((wallet, index) => (
+              <li key={index}>
+                {wallet.wallet_address}
+                <div className=" col-span-1">
+                  <Button
+                    className="bg-black"
+                    onClick={() => handleWalletBalence(wallet.wallet_address)}
+                  >
+                    {" "}
+                    Click here to get Wallet Balence{" "}
+                  </Button>
+                  {walletBalence[wallet.wallet_address] !== undefined && (
+                    <div>Balance: {walletBalence[wallet.wallet_address]}</div>
+                  )}
+                </div>
+              </li>
+            ))
+          ) : (
+            <li>No wallet addresses found.</li>
+          )}
+        </ul>
+      </div>
       <div className="bg-blue-700 text-white ">
         <button onClick={ButtonForNewWallet}>Create New Wallet</button> <br />
       </div>
@@ -58,26 +112,8 @@ export default function DashboardComponent({ pharses }: { pharses: string }) {
       <br />
       <br />
       <br />
-      <button
-        onClick={() => {
-          if (newKeyPair?.publicKey) {
-            AirDrop(newKeyPair?.publicKey);
-          }
-        }}
-      >
-        Click here to get air drop
-      </button>
       <br />
       <br />
-      <button
-        onClick={() => {
-          if (newKeyPair) {
-            GetWalletBalence(newKeyPair.publicKey);
-          }
-        }}
-      >
-        Click here to get Balence
-      </button>
     </div>
   );
 }

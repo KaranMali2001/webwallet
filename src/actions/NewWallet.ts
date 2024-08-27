@@ -6,8 +6,7 @@ import { derivePath } from "ed25519-hd-key";
 import { NextResponse } from "next/server";
 
 export async function New_wallet(data: string) {
-  // var salt = bcrypt.genSaltSync(10);
-  // const hashedMnemonic=await bcrypt.hash(data.toString(),salt)
+
 
   const totalCreatedWallet = await prisma.wallet.count({
     where: {

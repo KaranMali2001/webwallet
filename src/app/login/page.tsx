@@ -1,11 +1,14 @@
 "use client";
 
 import { FindUser } from "@/actions/findUser";
+import { DashboardComponent } from "@/components/dashboard";
+import { useRouter } from "next/navigation";
 
 import { useState } from "react";
-import DashboardComponent from "../dashboard/page";
+
 
 export default function Login() {
+  const router=useRouter()
   const [showDashBoard, setShowDashBoard] = useState(false);
   const [fileData, setFileData] = useState("");
   const [phrases, setPhrases] = useState<string[]>([
@@ -54,16 +57,19 @@ export default function Login() {
         console.log("incorrect pharse");
         setShowDashBoard(false);
       }
+      localStorage.setItem('pharse',fileData)
+   
+   router.push('/dashboard')
     };
-
+    if(showDashBoard){
+    
+    }
     GetUser(fileData);
   }
   console.log("fileData before dashBoard", fileData);
   return (
     <>
-      {showDashBoard ? (
-        <DashboardComponent pharses={fileData} />
-      ) : (
+       
         <div className="w-full md:h-[80vh] h-[90vh] flex justify-center items-center">
           <div className="flex flex-col justify-center items-center">
             <p className="text-white text-4xl font-bold">
@@ -101,7 +107,7 @@ export default function Login() {
             </button>
           </div>
         </div>
-      )}
+      
     </>
   );
 }

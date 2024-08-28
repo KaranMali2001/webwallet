@@ -5,14 +5,25 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { sendSol } from "@/actions/sendsol";
+import { GetUserWallets } from "@/actions/GetWallets";
 
 export default function (){
+
     const param=useParams()
+    const pubkeyArray = param.pubkey || [];
+    const walletIndex = pubkeyArray[0]; // Access the first element for index
+    const walletAddress = pubkeyArray[1]
+    console.log("param is ",param)
     const [netWork, setNetWork] = useState<string>('devnet');
     const [walletBalence,setWalletBalence]=useState<number >(0)
+    const [ReceiversAdd,setReceiversAdd]=useState('')
+    const [Amount,setAmount]=useState<string>('0')
     useEffect(()=>{
         const fetchWalletBalence=async()=>{
-            const res=await GetWalletBalence(param.pubkey.toString(),netWork)
+            const res=await GetWalletBalence(walletAddress.toString(),netWork)
             if(typeof res=="number"){
                 setWalletBalence(res/LAMPORTS_PER_SOL)
         
@@ -20,6 +31,11 @@ export default function (){
          }
          fetchWalletBalence()
     },[param,netWork])
+    const handleSend=async ()=>{
+        const res=await sendSol(ReceiversAdd,parseFloat(Amount),Number(walletIndex))
+        
+        console.log("res from send sol function is ",res)
+    }
  return <div>
     <RadioGroup value={netWork} onValueChange={setNetWork} defaultValue="comfortable" className="flex space-x-4">
       <div className="flex items-center space-x-2">
@@ -32,7 +48,23 @@ export default function (){
       </div>
     </RadioGroup>
  Wallet Balence is : {walletBalence}
- <br />
-    will add swap, send , receive of public key:{param.pubkey}
+ 
+ <div className="flex w-full max-w-sm items-center space-x-2">
+      <Input 
+      type="text" 
+      placeholder="Receivers Address"
+      value={ReceiversAdd}
+      onChange={(e)=>{setReceiversAdd(e.target.value)}}
+      />
+         <Input 
+      type="text" 
+      placeholder="Amount"
+      value={Amount}
+      onChange={(e)=>{setAmount((e.target.value))}}
+      />
+      <Button variant='outline' onClick={handleSend}>Send</Button>
+    </div>
+
+    will add swap, send , receive of public key:{walletAddress}
  </div>
 }

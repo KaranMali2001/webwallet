@@ -2,9 +2,11 @@
 
 import { FindUser } from "@/actions/findUser";
 import { DashboardComponent } from "@/components/dashboard";
+import { useSecret } from "@/lib/secrateContextProvider";
+
 import { useRouter } from "next/navigation";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export default function Login() {
@@ -31,13 +33,19 @@ export default function Login() {
     newPhrases[index] = newValue;
     setPhrases(newPhrases);
   };
-
+  const { secretKeeper, secret } = useSecret();
+  useEffect(() => {
+   
+    console.log("Secret in context is now:", secret);
+  }, [secret]); 
   async function handleFileUpload(formData: FormData) {
     const file = formData.get("file") as File;
-
-    const buffer = await file.arrayBuffer();
+   const buffer = await file.arrayBuffer();
+    console.log(buffer)
     const data = Buffer.from(buffer).toString();
+    
     setFileData(data);
+    console.log("file data inside handle file upload",fileData)
     const array: string[] = data.split(" ");
     setPhrases((prevPhrases) => {
       const newPhrases = [...prevPhrases];
@@ -49,24 +57,26 @@ export default function Login() {
     });
   }
   function handleButtonClick() {
+   
     const GetUser = async (fileData: string) => {
       const res = await FindUser(fileData);
       if (res?.hashed_mnemonics != null) {
-        setShowDashBoard(true);
+        secretKeeper(fileData)
+        router.push('/dashboard')
       } else {
         console.log("incorrect pharse");
         setShowDashBoard(false);
       }
-      localStorage.setItem('pharse',fileData)
-   
-   router.push('/dashboard')
+ 
+  
     };
-    if(showDashBoard){
-    
-    }
+
+ // Dependency array ensures it runs only when `secret` changes
+
+   
     GetUser(fileData);
   }
-  console.log("fileData before dashBoard", fileData);
+ 
   return (
     <>
        

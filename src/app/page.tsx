@@ -1,6 +1,9 @@
+
 import Link from "next/link";
 
 export default function Home() {
+  console.log("db url is ",process.env.DATABASE_URL)
+  
   return (
     <>
       <div className="text-white flex flex-auto items-center justify-around">

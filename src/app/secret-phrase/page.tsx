@@ -17,7 +17,7 @@ console.log("phasrse",res.data.mnemonic)
         if (res.status == 200) {
           const array: string[] = res.data.mnemonic.split(" ");
           setPhrases(array);
-          setData(res.data);
+          setData(res.data.mnemonic);
         }
       } catch (error: any) {
         console.error("Error:", error);
@@ -26,14 +26,29 @@ console.log("phasrse",res.data.mnemonic)
     Fetchdata();
   }, []);
   const downloadMnemonic = () => {
+    let mnemonicString;
+  console.log("data is lund",data)
+    if (Array.isArray(data)) {
+      // If data is an array, join it into a string
+      mnemonicString = data.join(' ');
+    } else if (typeof data === 'object') {
+      // If data is an object, stringify it
+      // You might want to customize this based on your data structure
+      mnemonicString = JSON.stringify(data, null, 2);
+    } else {
+      // If data is already a string, use it as is
+      mnemonicString = data;
+    }
+  
     const element = document.createElement("a");
-    const file = new Blob([data], { type: "text/plain" });
+    const file = new Blob([mnemonicString], { type: "text/plain" });
+    console.log("download file", file);
     element.href = URL.createObjectURL(file);
     element.download = "mnemonic.txt";
     document.body.appendChild(element); // Required for this to work in FireFox
     element.click();
+    document.body.removeChild(element);
   };
-
   return (
     <div className="w-full md:h-[80vh] h-[90vh] flex justify-center items-center">
       <div className="flex flex-col justify-center items-center">

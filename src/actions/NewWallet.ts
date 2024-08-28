@@ -19,6 +19,7 @@ export async function New_wallet(data: string) {
 
   const derivedSeed = derivePath(DerivedPath, seed.toString("hex")).key;
   const solKeyPair = Keypair.fromSeed(derivedSeed);
+  console.log("sol key pair is ",solKeyPair.secretKey)
   const res = await prisma.wallet.create({
     data: {
       wallet_address: solKeyPair.publicKey.toBase58(),

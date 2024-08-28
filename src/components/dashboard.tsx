@@ -11,7 +11,7 @@ import Link from "next/link";
 
 interface WalletKeys {
   publicKey: string;
-  secretKey: Uint8Array;
+  secretKey: string;
 }
 export function DashboardComponent({ pharses }: { pharses: string }){
   const [newKeyPair, setNewKeyPair] = useState<WalletKeys | null>(null);
@@ -42,14 +42,20 @@ export function DashboardComponent({ pharses }: { pharses: string }){
     };
 
     fetchUserWallets();
-  }, [mnemonics])
+  }, [newKeyPair,mnemonics])
 
   const ButtonForNewWallet = async () => {
     const res = await New_wallet(mnemonics);
-    setNewKeyPair(res);
+    const publicKey=res.publicKey
+    const secrateString=Buffer.from(res.secretKey).toString('hex')
+    const res2={
+      publicKey,
+      secretKey:secrateString
+    }
+    setNewKeyPair(res2);
     
   };
-
+ 
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white ">
 <div className="grid grid-cols-2 justify-end">
@@ -63,23 +69,9 @@ export function DashboardComponent({ pharses }: { pharses: string }){
           {Wallets && Wallets.length > 0 ? (
             Wallets.map((wallet, index) => (
               <li key={index}>
-                <Link href={`/info/${wallet.wallet_address}`}>
-
-                 {wallet.wallet_address}
+                <Link href={`/info/${index+1}/${wallet.wallet_address}`}>
+                Wallet Number {index + 1}: {wallet.wallet_address}
                  </Link>
-                
-                {/* <div className=" col-span-1">
-                  <Button
-                    className=""
-                    onClick={() => handleWalletBalence(wallet.wallet_address)}
-                  >
-                    {" "}
-                    Click here to get Wallet Balence{" "}
-                  </Button>
-                  {walletBalence[wallet.wallet_address] !== undefined && (
-                    <div>Balance: {walletBalence[wallet.wallet_address]}</div>
-                  )}
-                </div> */}
               </li>
             ))
           ) : (

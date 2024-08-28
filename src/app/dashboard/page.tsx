@@ -1,12 +1,19 @@
 'use client'
 
 import { DashboardComponent } from "@/components/dashboard"
+import { useSecret } from "@/lib/secrateContextProvider"
+import { useEffect } from "react";
+
 
 export default function (){
-const data=    localStorage.getItem('pharse')?.toString()
-    if(typeof data==='string'){
+const { secretKeeper, secret } = useSecret();
+  useEffect(() => {
+   
+  }, [secret]); 
+console.log("secrate from dashboard",secret)
+    if(secret!=null){
         return <>
-        <DashboardComponent pharses={data}/>
+        <DashboardComponent pharses={secret}/>
         </>
     }else{
         return <>

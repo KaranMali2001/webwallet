@@ -1,13 +1,36 @@
 "use server";
 import prisma from "@/lib/db";
 import { Keypair } from "@solana/web3.js";
-import { generateMnemonic, mnemonicToSeedSync } from "bip39";
+import { generateMnemonic, mnemonicToSeed, mnemonicToSeedSync } from "bip39";
 import { derivePath } from "ed25519-hd-key";
+import { Wallet } from "ethers";
+import { HDNodeWallet } from "ethers";
 import { NextResponse } from "next/server";
+export async function EthWallet(data: string) {
+  const seed = mnemonicToSeedSync(data);
+  const totalCreatedWallet = await prisma.wallet.count({
+    where: {
+      User_Mnemonics: data,
+    },
+  });
+  const DerivedPath = `m/44'/60'/${totalCreatedWallet}'/0'`;
+  const hdNode = HDNodeWallet.fromSeed(seed);
+  const child = hdNode.derivePath(DerivedPath);
+  const privateKey = child.privateKey;
+  const wallet = new Wallet(privateKey);
+  console.log("private key is ", privateKey);
+  const res = await prisma.wallet.create({
+    data: {
+      wallet_address: wallet.address.toString(),
+      User_Mnemonics: data,
+    },
+  });
+return{
+  PublicKey:wallet.address.toString(),
+  PrivateKey:privateKey
 
-export async function New_wallet(data: string) {
-
-
+} }
+export async function SolWallet(data: string) {
   const totalCreatedWallet = await prisma.wallet.count({
     where: {
       User_Mnemonics: data,
@@ -19,7 +42,6 @@ export async function New_wallet(data: string) {
 
   const derivedSeed = derivePath(DerivedPath, seed.toString("hex")).key;
   const solKeyPair = Keypair.fromSeed(derivedSeed);
-  console.log("sol key pair is ",solKeyPair.secretKey)
   const res = await prisma.wallet.create({
     data: {
       wallet_address: solKeyPair.publicKey.toBase58(),

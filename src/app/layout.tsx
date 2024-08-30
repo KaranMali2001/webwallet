@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/lib/provider";
 import "@/styles/globals.css";
+
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -28,7 +30,7 @@ export default function RootLayout({
 
       <body
         className={cn(
-          "min-h-screen bg-slate-700 font-sans antialiased",
+          "bg-black text-whitefont-sans ",
           fontSans.variable
         )}
       >

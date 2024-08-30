@@ -33,6 +33,7 @@ export default function Login() {
     newPhrases[index] = newValue;
     setPhrases(newPhrases);
   };
+  //@ts-ignore
   const { secretKeeper, secret } = useSecret();
   useEffect(() => {
    

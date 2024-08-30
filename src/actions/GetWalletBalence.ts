@@ -3,11 +3,11 @@
 import {  Connection, PublicKey } from "@solana/web3.js"
 
 
-export default async function GetWalletBalence(pubKey:string,network:string){
+export default async function SolanaWalletBalence(pubKey:string,network:string){
   
     if(network==="devnet"){
         const connection=new Connection(process.env.SOLANA_DEVNET_RPC || "")
-    
+        
         const publicKey=new PublicKey(pubKey)
         const balence=await connection.getBalance(publicKey)
     console.log(balence)
@@ -27,4 +27,9 @@ export default async function GetWalletBalence(pubKey:string,network:string){
     }
     
     
+}
+export async function EthWalletBalence(pubKey:string,network:string){
+    if(network==="holesky"){
+        
+    }
 }

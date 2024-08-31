@@ -15,7 +15,7 @@ import { GetUserWallets } from "./GetWallets";
 import { useSecret } from "@/lib/secrateContextProvider";
 
 export async function sendSol(
-  publicKey: string,
+  Receiver_publicKey: string,
   Amount: number,
   walletNumber: number,
   mnemonics:string
@@ -34,10 +34,11 @@ export async function sendSol(
     "sender privet key is",
     Buffer.from(sender.secretKey).toString("hex")
   );
+  console.log("pbulic key is",sender.publicKey)
   const txn = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: sender.publicKey,
-      toPubkey: new PublicKey(publicKey),
+      toPubkey: new PublicKey(Receiver_publicKey),
       lamports: Amount * LAMPORTS_PER_SOL,
     })
   );
@@ -45,4 +46,7 @@ export async function sendSol(
   const res = await sendAndConfirmTransaction(connection, txn, [sender]);
   console.log("afet sending txn");
   console.log("res from send sol testing is", res);
+  return {
+    "message":"txn is successful"
+  }
 }

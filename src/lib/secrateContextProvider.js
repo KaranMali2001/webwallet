@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 // Correct naming
@@ -8,9 +8,9 @@ export const SecretProvider = ({ children }) => {
   const [secret, setSecret] = useState("");
 
   function secretKeeper(fileData) {
-    console.log("file data in context is ",fileData)
+    console.log("file data in context is ", fileData);
     setSecret(fileData);
-    console.log("secrate in context is ",secret)
+    console.log("secrate in context is ", secret);
   }
 
   return (

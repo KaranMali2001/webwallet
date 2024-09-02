@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://webwallet_owner:TJXGRax8UWK3@ep-nameless-mountain-a1xl5hsh.ap-southeast-1.aws.neon.tech/webwallet?sslmode=require"
+  url      = env("DATABASE_URL")
 }
 
 model User{
@@ -20,7 +20,8 @@ model User{
 }
 model Wallet{
   wallet_address String @unique
-  
+  SolWalletIndex Int
+  EthWalletIndex Int
   User_Mnemonics String
   user User @relation(fields: [User_Mnemonics],references: [hashed_mnemonics])
 }

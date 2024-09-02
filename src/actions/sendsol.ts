@@ -9,44 +9,47 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { mnemonicToSeedSync } from "bip39";
-import { derivePath } from "ed25519-hd-key";
-import { GetUserWallets } from "./GetWallets";
-import { useSecret } from "@/lib/secrateContextProvider";
+
+import { GetSolPrivateKey } from "./getPrivateKey";
 
 export async function sendSol(
   Receiver_publicKey: string,
   Amount: number,
-  walletNumber: number,
-  mnemonics:string
+  Sender_publicKey: string,
+  mnemonics: string,
+  network: string,
 ) {
- 
- console.log("secrate is ",mnemonics)
-    const seed = mnemonicToSeedSync(mnemonics);
- 
-  const DerivedPath = `m/44'/501'/${walletNumber}'/0'`;
-  console.log("afer derived path");
-  const derivedSeed = derivePath(DerivedPath, seed.toString("hex")).key;
-  const connection = new Connection("https://api.devnet.solana.com");
-  const sender = Keypair.fromSeed(derivedSeed);
-  console.log("sender public key is", sender.publicKey);
-  console.log(
-    "sender privet key is",
-    Buffer.from(sender.secretKey).toString("hex")
-  );
-  console.log("pbulic key is",sender.publicKey)
+  console.log("secrate is ", mnemonics);
+
+  const connection =
+    network === "devnet"
+      ? new Connection(process.env.SOLANA_DEVNET_RPC || "", "confirmed")
+      : new Connection(process.env.SOLANA_MAINNET_RPC || "", "confirmed");
+
+  const sender = await GetSolPrivateKey(Sender_publicKey, mnemonics);
   const txn = new Transaction().add(
     SystemProgram.transfer({
-      fromPubkey: sender.publicKey,
+      fromPubkey: new PublicKey(Sender_publicKey),
       toPubkey: new PublicKey(Receiver_publicKey),
       lamports: Amount * LAMPORTS_PER_SOL,
-    })
+    }),
   );
-  console.log("after creating txn", txn);
-  const res = await sendAndConfirmTransaction(connection, txn, [sender]);
-  console.log("afet sending txn");
-  console.log("res from send sol testing is", res);
-  return {
-    "message":"txn is successful"
+
+  if (!sender) {
+    console.error("Sender is undefined. Transaction cannot be sent.");
+    return;
   }
+  const senderKeypair = Keypair.fromSecretKey(sender.secretKey);
+  
+  try {
+    const res = await sendAndConfirmTransaction(connection, txn, [
+      senderKeypair,
+    ]);
+  
+  } catch (error) {
+  return
+  }
+  return {
+    message: "txn is successful",
+  };
 }
